@@ -1,0 +1,19 @@
+node_modules
+.next/
+sdk/dist/
+test-wallet-connect.html
+extension/
+contracts/
+
+# Hardhat
+cache/
+artifacts/
+deployments/
+.env
+.env.local
+*.log
+
+# Private scripts
+scripts/withdraw-fees.js
+scripts/debug-contract.js
+scripts/withdraw-fees-manual.js

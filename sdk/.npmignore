@@ -1,0 +1,11 @@
+node_modules
+*.ts
+*.tsx
+!*.d.ts
+tsconfig.json
+.git
+.gitignore
+*.log
+.DS_Store
+dist/**/*.map
+

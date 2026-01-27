@@ -1,0 +1,66 @@
+{
+  "name": "unchainedwallet",
+  "version": "1.0.0",
+  "description": "Simple SDK for connecting to Unchained Wallet with wagmi and viem",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/components/WalletSelector.js",
+      "require": "./dist/components/WalletSelector.js",
+      "types": "./dist/components/WalletSelector.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/hooks/useConnectWallet.js",
+      "require": "./dist/hooks/useConnectWallet.js",
+      "types": "./dist/hooks/useConnectWallet.d.ts"
+    },
+    "./vanilla": {
+      "import": "./dist/vanilla.js",
+      "require": "./dist/vanilla.js",
+      "types": "./dist/vanilla.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "wallet",
+    "ethereum",
+    "wagmi",
+    "viem",
+    "unchained",
+    "unchainedwallet",
+    "web3",
+    "blockchain",
+    "dapp"
+  ],
+  "author": "Unchained Wallet",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Teckdegen/UCHAINWEBAPP.git",
+    "directory": "sdk"
+  },
+  "peerDependencies": {
+    "wagmi": "^2.0.0",
+    "viem": "^2.0.0",
+    "@wagmi/connectors": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+

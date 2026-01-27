@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+:root {
+  /* Green/Black/White Theme */
+  --primary-green: #00ff88;
+  --primary-green-dark: #00cc6a;
+  --primary-green-light: #33ffaa;
+  --bg-black: #0a0a0a;
+  --bg-dark: #111111;
+  --bg-darker: #0a0a0b;
+  --text-white: #ffffff;
+  --text-gray: #d1d5db;
+  --text-gray-dark: #9ca3af;
+  --border-gray: #1f2937;
+  --border-gray-light: #374151;
+
+  /* Design tokens */
+  --background: var(--bg-black);
+  --foreground: var(--text-white);
+  --card: rgba(255, 255, 255, 0.05);
+  --card-foreground: var(--text-white);
+  --primary: var(--primary-green);
+  --primary-foreground: var(--bg-black);
+  --secondary: var(--bg-darker);
+  --secondary-foreground: var(--text-white);
+  --accent: var(--primary-green);
+  --border: var(--border-gray);
+  --ring: var(--primary-green);
+}
+
+@theme inline {
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: "Monaco", "Menlo", monospace;
+}
+
+@layer base {
+  * {
+    @apply border-current;
+  }
+
+  html,
+  body {
+    @apply bg-black text-white;
+    background-color: var(--bg-black);
+    color: var(--text-white);
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  #__next {
+    min-height: 100vh;
+    width: 100%;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 shadow-lg;
+  }
+
+  .glass-card:hover {
+    @apply bg-white/8 border-green-500/30;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-black transition-all hover:scale-105 active:scale-95 shadow-lg shadow-green-500/20;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-xl font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all hover:scale-105 active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all;
+  }
+
+  .fancy-select {
+    @apply w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/30 transition-all hover:bg-white/15 hover:border-white/30 cursor-pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem 1.25rem;
+    padding-right: 2.5rem;
+  }
+
+  .fancy-select option {
+    @apply bg-black/95 text-white;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-green-400 to-green-500 bg-clip-text text-transparent;
+  }
+
+  .spinner {
+    @apply w-5 h-5 border-2 border-white/30 border-t-green-500 rounded-full animate-spin;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  33% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  66% {
+    transform: translateY(10px) translateX(-10px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-green-light);
+}
