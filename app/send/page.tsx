@@ -557,7 +557,7 @@ export default function SendPage() {
                 <button
                   onClick={() => setAmount(balance)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1 rounded-lg text-xs font-bold transition-colors"
-                  style={{ background: "rgba(0,255,136,0.12)", color: "#00ff88" }}
+                  style={{ background: "rgba(0,255,136,0.15)", border: "1px solid rgba(0,255,136,0.3)", color: "#00ff88", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}
                 >
                   MAX
                 </button>
@@ -586,7 +586,7 @@ export default function SendPage() {
                 type="button"
                 onClick={() => { if (confirmWalletReset()) { clearAllWallets(); router.push("/setup") } }}
                 className="mt-1.5 flex items-center gap-1 text-xs transition-colors"
-                style={{ color: "#4b5563" }}
+                style={{ color: "#9ca3af" }}
               >
                 <RotateCcw className="w-3 h-3" /> Forgot PIN? Reset Wallet
               </button>

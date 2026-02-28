@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import {
   getWallets,
@@ -47,6 +47,10 @@ import BottomNav from "@/components/BottomNav"
 import RpcConnectionNotification from "@/components/RpcConnectionNotification"
 import { ethers } from "ethers"
 
+const NATIVE_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
+const PEPU_NATIVE_LOGO_URL =
+  "https://image2url.com/r2/default/images/1772259918647-f246f7c7-68cb-4498-8e96-7122e6f3fbd8.jpg"
+
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function decimals() view returns (uint8)",
@@ -86,6 +90,53 @@ function TokenAvatar({ symbol, size = 40 }: { symbol: string; size?: number }) {
   )
 }
 
+function TokenIcon({
+  symbol,
+  size = 40,
+  logoUrl,
+}: {
+  symbol: string
+  size?: number
+  logoUrl?: string | null
+}) {
+  const [from, to] = getTokenGradient(symbol)
+  return (
+    <div
+      className="relative rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 overflow-hidden"
+      style={{
+        width: size,
+        height: size,
+        background: `linear-gradient(135deg, ${from}, ${to})`,
+        fontSize: size * 0.35,
+      }}
+    >
+      {symbol[0]?.toUpperCase()}
+      {logoUrl && (
+        <img
+          src={logoUrl}
+          alt={symbol}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = "none"
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+async function mapLimit<T>(items: T[], limit: number, fn: (item: T) => Promise<void>) {
+  const queue = items.slice()
+  const workers = Array.from({ length: Math.max(1, limit) }, async () => {
+    while (queue.length) {
+      const item = queue.shift()
+      if (item === undefined) return
+      await fn(item)
+    }
+  })
+  await Promise.all(workers)
+}
+
 function ActionBtn({
   icon,
   label,
@@ -99,10 +150,10 @@ function ActionBtn({
 }) {
   const inner = (
     <div className="flex flex-col items-center gap-2">
-      <div className="w-12 h-12 rounded-full bg-[#1a2a1a] border border-green-500/30 flex items-center justify-center text-green-400 hover:bg-green-500/20 hover:border-green-400/60 transition-all active:scale-95">
+      <div className="w-12 h-12 rounded-full bg-[#1a2a1a] border border-green-500/40 flex items-center justify-center text-[#00ff88] hover:bg-green-500/20 hover:border-green-400/60 transition-all active:scale-95 shadow-[0_2px_8px_rgba(0,0,0,0.25),0_1px_3px_rgba(0,255,136,0.08)]">
         {icon}
       </div>
-      <span className="text-[11px] text-gray-400 font-medium">{label}</span>
+      <span className="text-[11px] font-medium" style={{ color: "#d1d5db" }}>{label}</span>
     </div>
   )
   if (href) return <Link href={href}>{inner}</Link>
@@ -133,6 +184,8 @@ export default function DashboardPage() {
   const [displayCurrency, setDisplayCurrency] = useState<Currency>(getSavedCurrency())
   const [balances, setBalances] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
+  const tokenLogosRef = useRef<Record<string, string>>({})
   const [walletDomains, setWalletDomains] = useState<Record<string, string>>({})
   const [chainId, setChainId] = useState(() => {
     if (typeof window !== "undefined") {
@@ -171,6 +224,35 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<"tokens" | "nfts">("tokens")
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showNetworkMenu, setShowNetworkMenu] = useState(false)
+
+  useEffect(() => {
+    tokenLogosRef.current = tokenLogos
+  }, [tokenLogos])
+
+  const hydrateTokenLogos = useCallback(async (tokens: any[], currentChainId: number) => {
+    const network: "ethereum" | "pepe-unchained" = currentChainId === 1 ? "ethereum" : "pepe-unchained"
+    const addresses = Array.from(
+      new Set(
+        tokens
+          .filter((t) => !t?.isNative && typeof t?.address === "string" && ethers.isAddress(t.address))
+          .map((t) => t.address.toLowerCase()),
+      ),
+    )
+
+    const missing = addresses.filter((a) => !tokenLogosRef.current[a])
+    if (missing.length === 0) return
+
+    const updates: Record<string, string> = {}
+    await mapLimit(missing, 6, async (addr) => {
+      const data = await fetchGeckoTerminalData(addr, network)
+      const url = data?.image_url || null
+      if (url) updates[addr] = url
+    })
+
+    if (Object.keys(updates).length > 0) {
+      setTokenLogos((prev) => ({ ...prev, ...updates }))
+    }
+  }, [])
 
   // Load VAULT Domains
   useEffect(() => {
@@ -305,6 +387,7 @@ export default function DashboardPage() {
       }
 
       allBalances.push({
+        address: NATIVE_TOKEN_ADDRESS,
         symbol: nativeSymbol,
         name: currentChainId === 1 ? "Ethereum" : "Pepe Unchained",
         balance,
@@ -438,6 +521,7 @@ export default function DashboardPage() {
 
       setBalances(allBalances)
       setPortfolioValue(totalValue.toFixed(2))
+      void hydrateTokenLogos(allBalances, currentChainId)
       reportRpcSuccess(chainId)
     } catch (error: any) {
       console.error("Error fetching balances:", error)
@@ -610,7 +694,7 @@ export default function DashboardPage() {
         <button
           onClick={copyAddress}
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-mono transition-all hover:bg-white/10 active:scale-95"
-          style={{ background: "rgba(255,255,255,0.06)", color: "#9ca3af" }}
+          style={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", color: "#d1d5db", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}
         >
           {activeAddress
             ? `${activeAddress.slice(0, 6)}...${activeAddress.slice(-4)}`
@@ -728,7 +812,17 @@ export default function DashboardPage() {
                     key={`${token.symbol}-${i}`}
                     className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/3 transition-colors cursor-pointer active:bg-white/5"
                   >
-                    <TokenAvatar symbol={token.symbol} size={42} />
+                    <TokenIcon
+                      symbol={token.symbol}
+                      size={42}
+                      logoUrl={
+                        token?.address?.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() && token?.symbol === "PEPU"
+                          ? PEPU_NATIVE_LOGO_URL
+                          : token?.address
+                            ? tokenLogos[String(token.address).toLowerCase()] || null
+                            : null
+                      }
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-white">{token.name}</p>
                       <p className="text-xs text-gray-500">{token.symbol}</p>

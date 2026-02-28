@@ -1317,8 +1317,9 @@ export default function TradePage() {
           onClick={() => setShowSlippageSettings(!showSlippageSettings)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
           style={{
-            background: showSlippageSettings ? "rgba(0,255,136,0.12)" : "rgba(255,255,255,0.06)",
-            border: `1px solid ${showSlippageSettings ? "rgba(0,255,136,0.3)" : "rgba(255,255,255,0.08)"}`,
+            background: showSlippageSettings ? "rgba(0,255,136,0.12)" : "rgba(255,255,255,0.14)",
+            border: `1px solid ${showSlippageSettings ? "rgba(0,255,136,0.3)" : "rgba(255,255,255,0.22)"}`,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
             color: showSlippageSettings ? "#00ff88" : "#9ca3af",
           }}
         >
@@ -1518,10 +1519,10 @@ export default function TradePage() {
           className="w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
           style={
             loading || !amountIn || !amountOut || Number.parseFloat(amountIn) === 0
-              ? { background: "rgba(255,255,255,0.06)", color: "#4b5563", cursor: "not-allowed" }
+              ? { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", color: "#9ca3af", cursor: "not-allowed", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }
               : needsApproval
-              ? { background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }
-              : { background: "#00ff88", color: "#13141a" }
+              ? { background: "rgba(245,158,11,0.2)", border: "1px solid rgba(245,158,11,0.4)", color: "#fbbf24", boxShadow: "0 2px 8px rgba(0,0,0,0.25)" }
+              : { background: "#00ff88", color: "#0a0b0d", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }
           }
         >
           {loading ? (

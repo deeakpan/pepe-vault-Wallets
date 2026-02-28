@@ -157,7 +157,7 @@ export default function ReceivePage() {
               <button
                 onClick={handleCopy}
                 className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90"
-                style={{ background: copied ? "rgba(0,255,136,0.15)" : "rgba(255,255,255,0.08)" }}
+                style={{ background: copied ? "rgba(0,255,136,0.15)" : "rgba(255,255,255,0.12)", border: copied ? "1px solid rgba(0,255,136,0.3)" : "1px solid rgba(255,255,255,0.2)", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}
               >
                 {copied
                   ? <Check className="w-4 h-4" style={{ color: "#00ff88" }} />
@@ -173,8 +173,8 @@ export default function ReceivePage() {
           className="w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
           style={
             copied
-              ? { background: "rgba(0,255,136,0.15)", border: "1px solid rgba(0,255,136,0.3)", color: "#00ff88" }
-              : { background: "#00ff88", color: "#13141a" }
+              ? { background: "rgba(0,255,136,0.15)", border: "1px solid rgba(0,255,136,0.3)", color: "#00ff88", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }
+              : { background: "#00ff88", color: "#0a0b0d", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }
           }
         >
           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

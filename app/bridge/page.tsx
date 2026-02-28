@@ -432,8 +432,8 @@ export default function BridgePage() {
           className="w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
           style={
             isBridgeDisabled
-              ? { background: "rgba(255,255,255,0.06)", color: "#4b5563", cursor: "not-allowed" }
-              : { background: "#00ff88", color: "#13141a" }
+              ? { background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", color: "#9ca3af", cursor: "not-allowed", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }
+              : { background: "#00ff88", color: "#0a0b0d", boxShadow: "0 2px 8px rgba(0,0,0,0.3)" }
           }
         >
           {loading ? <><Loader className="w-4 h-4 animate-spin" /> Bridging…</> : "Bridge PEPU"}

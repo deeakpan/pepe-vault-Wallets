@@ -123,17 +123,18 @@
     font-weight: 700;
     font-size: 15px;
     background: var(--accent);
-    color: var(--bg-base);
+    color: #0a0b0d;
     border: 1px solid rgba(0,255,136,0.4);
     cursor: pointer;
     transition: all 0.15s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(255,255,255,0.1);
     letter-spacing: 0.01em;
   }
 
   .btn-primary:hover {
     background: var(--accent-dark);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    color: #0a0b0d;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35), 0 1px 4px rgba(255,255,255,0.12);
     transform: translateY(-1px);
   }
 
@@ -142,10 +143,11 @@
   }
 
   .btn-primary:disabled {
-    opacity: 0.45;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    color: #1a1d26;
   }
 
   .btn-secondary {
@@ -156,16 +158,19 @@
     border-radius: 16px;
     font-weight: 600;
     font-size: 14px;
-    background: rgba(255,255,255,0.12);
-    color: var(--text-primary);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.14);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.25);
     cursor: pointer;
     transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2), 0 1px 2px rgba(255,255,255,0.06);
   }
 
   .btn-secondary:hover {
-    background: rgba(255,255,255,0.16);
-    border-color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.35);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(255,255,255,0.08);
   }
 
   .btn-secondary:active {
@@ -192,13 +197,17 @@
   }
 
   .btn-icon {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2), 0 1px 2px rgba(255,255,255,0.05);
   }
 
   .btn-icon:hover {
-    background: rgba(255,255,255,0.16);
-    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(255,255,255,0.08);
   }
 
   /* ── Input ── */

@@ -249,7 +249,7 @@ export default function TokensPage() {
           <button
             onClick={() => { setShowAddToken(true); setCustomAddress(""); setCustomError("") }}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all"
-            style={{ background: "rgba(0,255,136,0.08)", border: "1px solid rgba(0,255,136,0.18)", color: "#00ff88" }}
+            style={{ background: "rgba(0,255,136,0.12)", border: "1px solid rgba(0,255,136,0.25)", color: "#00ff88", boxShadow: "0 2px 6px rgba(0,0,0,0.2)" }}
           >
             <Plus className="w-4 h-4" />
             Add Custom ETH Token
