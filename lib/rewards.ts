@@ -248,23 +248,20 @@ export async function addERC20TransferReward(
 
     // Calculate reward based on transfer value
     if (transferValueUsd < 1) {
-      // If transfer value < $1: Give 10 UCHAIN tokens
-      rewardInUchain = 10
-      console.log(`[Rewards] Transfer value $${transferValueUsd.toFixed(4)} < $1, giving minimum reward: 10 UCHAIN`)
+      // If transfer value < $1: Give 5 VAULT tokens flat
+      rewardInUchain = 100
+      console.log(`[Rewards] Transfer value $${transferValueUsd.toFixed(4)} < $1, giving minimum reward: 100 VAULT`)
     } else {
-      // If transfer value >= $1: Use Quoter to get UCHAIN equivalent of fee, then give 10% of that
+      // If transfer value >= $1: Use Quoter to get VAULT equivalent of fee, then give 5% of that
       const uchainEquivalent = await getUchainAmountFromQuoter(tokenAddress, feeAmount, decimals)
-      
+
       if (Number.parseFloat(uchainEquivalent) > 0) {
-        // Calculate 10% of the UCHAIN equivalent
-        rewardInUchain = Number.parseFloat(uchainEquivalent) * 0.1
-        console.log(`[Rewards] Transfer value $${transferValueUsd.toFixed(4)} >= $1`)
-        console.log(`[Rewards] Fee amount: ${feeAmount} tokens = ${uchainEquivalent} UCHAIN`)
-        console.log(`[Rewards] Giving 10% of fee: ${rewardInUchain.toFixed(6)} UCHAIN`)
+        rewardInUchain = Number.parseFloat(uchainEquivalent) * 0.05 // 5% of fee (was 10%)
+        console.log(`[Rewards] Transfer $${transferValueUsd.toFixed(4)}, fee=${feeAmount} = ${uchainEquivalent} VAULT, reward: ${rewardInUchain.toFixed(6)} VAULT`)
       } else {
-        // If Quoter fails, fallback to minimum reward
-        console.warn("[Rewards] Quoter returned 0, using minimum reward")
-        rewardInUchain = 10
+        // Quoter failed — still give flat reward
+        rewardInUchain = 100
+        console.warn("[Rewards] Quoter returned 0, using flat fallback: 100 VAULT")
       }
     }
 
@@ -280,7 +277,7 @@ export async function addERC20TransferReward(
     const storageKey = getRewardsStorageKey(walletAddress)
     localStorage.setItem(storageKey, JSON.stringify(rewardsData))
     
-    console.log(`[Rewards] ✅ Added ERC20 transfer reward: ${rewardInUchain.toFixed(6)} UCHAIN. New balance: ${newBalance} UCHAIN`)
+    console.log(`[Rewards] ✅ Added ERC20 transfer reward: ${rewardInUchain.toFixed(6)} VAULT. New balance: ${newBalance} VAULT`)
   } catch (error: any) {
     console.error("[Rewards] ❌ Error adding ERC20 transfer reward:", error)
     console.error("[Rewards] Error details:", error.message, error.stack)
@@ -298,19 +295,17 @@ export async function addTransferReward(walletAddress: string): Promise<void> {
     }
 
     console.log(`[Rewards] Recording native transfer reward for wallet: ${walletAddress}`)
-    
-    // Get UCHAIN price in USD
+
+    // Get UCHAIN price in USD — always give reward even if price fetch fails
     const uchainPrice = await getUchainPrice()
-    if (uchainPrice <= 0) {
-      console.warn("[Rewards] Could not fetch UCHAIN price, skipping reward")
-      return
+    let rewardInUchain: number
+    if (uchainPrice > 0) {
+      rewardInUchain = TRANSFER_REWARD_USD / uchainPrice
+      console.log(`[Rewards] UCHAIN price: $${uchainPrice}, reward: ${rewardInUchain.toFixed(6)} UCHAIN`)
+    } else {
+      rewardInUchain = 100 // flat fallback: 100 VAULT when price unavailable
+      console.warn("[Rewards] Could not fetch UCHAIN price, using flat fallback: 5 VAULT")
     }
-
-    console.log(`[Rewards] UCHAIN price: $${uchainPrice}`)
-
-    // Calculate reward in UCHAIN tokens
-    const rewardInUchain = TRANSFER_REWARD_USD / uchainPrice
-    console.log(`[Rewards] Calculated reward: ${rewardInUchain.toFixed(6)} UCHAIN`)
 
     // Add to rewards (per-wallet)
     const currentBalance = getRewardsBalance(walletAddress)
@@ -324,7 +319,7 @@ export async function addTransferReward(walletAddress: string): Promise<void> {
     const storageKey = getRewardsStorageKey(walletAddress)
     localStorage.setItem(storageKey, JSON.stringify(rewardsData))
     
-    console.log(`[Rewards] ✅ Added transfer reward: ${rewardInUchain.toFixed(6)} UCHAIN. New balance: ${newBalance} UCHAIN`)
+    console.log(`[Rewards] ✅ Added transfer reward: ${rewardInUchain.toFixed(6)} VAULT. New balance: ${newBalance} VAULT`)
   } catch (error: any) {
     console.error("[Rewards] ❌ Error adding transfer reward:", error)
     console.error("[Rewards] Error details:", error.message, error.stack)
@@ -346,23 +341,21 @@ export async function addNativePepuSwapReward(
 
     console.log(`[Rewards] Recording native PEPU swap reward for wallet: ${walletAddress}`)
 
-    // Get PEPU and UCHAIN prices from CoinGecko
+    // Get PEPU and UCHAIN prices — always give reward even if price fetch fails
     const { fetchPepuPrice } = await import("./coingecko")
     const pepuPrice = await fetchPepuPrice()
     const uchainPrice = await getUchainPrice()
-    
-    if (pepuPrice <= 0 || uchainPrice <= 0) {
-      console.warn("[Rewards] Could not fetch prices, skipping reward")
-      return
+
+    let rewardInUchain: number
+    if (pepuPrice > 0 && uchainPrice > 0) {
+      const feeValueUsd = Number.parseFloat(feeAmount) * pepuPrice
+      const rewardValueUsd = feeValueUsd * 0.05 // 5% of fee (was 10%)
+      rewardInUchain = rewardValueUsd / uchainPrice
+      console.log(`[Rewards] Fee: ${feeAmount} PEPU ($${feeValueUsd.toFixed(4)}), reward: ${rewardInUchain.toFixed(6)} VAULT`)
+    } else {
+      rewardInUchain = 100 // flat fallback: 100 VAULT when price unavailable
+      console.warn("[Rewards] Could not fetch prices, using flat fallback: 7.5 VAULT")
     }
-
-    // Calculate fee value in USD, then convert to UCHAIN
-    const feeValueUsd = Number.parseFloat(feeAmount) * pepuPrice
-    const rewardValueUsd = feeValueUsd * 0.1 // 10% of fee
-    const rewardInUchain = rewardValueUsd / uchainPrice
-
-    console.log(`[Rewards] Fee amount: ${feeAmount} PEPU, Fee value: $${feeValueUsd.toFixed(4)}`)
-    console.log(`[Rewards] Giving 10% of fee: ${rewardInUchain.toFixed(6)} UCHAIN`)
 
     // Add to rewards (per-wallet)
     const currentBalance = getRewardsBalance(walletAddress)
@@ -376,7 +369,7 @@ export async function addNativePepuSwapReward(
     const storageKey = getRewardsStorageKey(walletAddress)
     localStorage.setItem(storageKey, JSON.stringify(rewardsData))
     
-    console.log(`[Rewards] ✅ Added native PEPU swap reward: ${rewardInUchain.toFixed(6)} UCHAIN. New balance: ${newBalance} UCHAIN`)
+    console.log(`[Rewards] ✅ Added native PEPU swap reward: ${rewardInUchain.toFixed(6)} VAULT. New balance: ${newBalance} VAULT`)
   } catch (error: any) {
     console.error("[Rewards] ❌ Error adding native PEPU swap reward:", error)
     console.error("[Rewards] Error details:", error.message, error.stack)
@@ -400,19 +393,17 @@ export async function addSwapReward(
 
     console.log(`[Rewards] Recording ERC20 swap reward for wallet: ${walletAddress}`)
 
-    // Use Quoter contract to get UCHAIN equivalent of fee amount
+    // Use Quoter contract to get UCHAIN equivalent of fee amount — always give reward even if Quoter fails
     const uchainEquivalent = await getUchainAmountFromQuoter(tokenAddress, feeAmount, tokenDecimals)
-    
-    if (Number.parseFloat(uchainEquivalent) <= 0) {
-      console.warn("[Rewards] Quoter returned 0 or failed, skipping reward")
-      return
+
+    let rewardInUchain: number
+    if (Number.parseFloat(uchainEquivalent) > 0) {
+      rewardInUchain = Number.parseFloat(uchainEquivalent) * 0.05 // 5% of fee (was 10%)
+      console.log(`[Rewards] Fee: ${feeAmount} tokens = ${uchainEquivalent} VAULT, reward: ${rewardInUchain.toFixed(6)} VAULT`)
+    } else {
+      rewardInUchain = 100 // flat fallback: 100 VAULT when Quoter fails
+      console.warn("[Rewards] Quoter returned 0, using flat fallback: 7.5 VAULT")
     }
-
-    // Calculate reward: 10% of the UCHAIN equivalent
-    const rewardInUchain = Number.parseFloat(uchainEquivalent) * 0.1
-
-    console.log(`[Rewards] Fee amount: ${feeAmount} tokens = ${uchainEquivalent} UCHAIN`)
-    console.log(`[Rewards] Giving 10% of fee: ${rewardInUchain.toFixed(6)} UCHAIN`)
 
     // Add to rewards (per-wallet)
     const currentBalance = getRewardsBalance(walletAddress)
@@ -426,7 +417,7 @@ export async function addSwapReward(
     const storageKey = getRewardsStorageKey(walletAddress)
     localStorage.setItem(storageKey, JSON.stringify(rewardsData))
     
-    console.log(`[Rewards] ✅ Added ERC20 swap reward: ${rewardInUchain.toFixed(6)} UCHAIN. New balance: ${newBalance} UCHAIN`)
+    console.log(`[Rewards] ✅ Added ERC20 swap reward: ${rewardInUchain.toFixed(6)} VAULT. New balance: ${newBalance} VAULT`)
   } catch (error: any) {
     console.error("[Rewards] ❌ Error adding ERC20 swap reward:", error)
     console.error("[Rewards] Error details:", error.message, error.stack)

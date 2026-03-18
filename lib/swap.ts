@@ -695,7 +695,23 @@ export async function executeSwap(
       }
       throw new Error(revertReason)
     }
-    
+
+    // Record swap reward asynchronously (fire-and-forget — never block the swap)
+    if (chainId === 97741) {
+      const isNative = tokenIn.address === NATIVE_TOKEN
+      // Estimate fee as 0.85% of amountIn for reward calculation
+      const feeEstimate = (Number.parseFloat(amountIn) * 0.0085).toFixed(6)
+      import("./rewards")
+        .then(({ addNativePepuSwapReward, addSwapReward }) => {
+          if (isNative) {
+            return addNativePepuSwapReward(wallet.address, feeEstimate)
+          } else {
+            return addSwapReward(wallet.address, tokenIn.address, feeEstimate, tokenIn.decimals)
+          }
+        })
+        .catch((err: any) => console.error("[Swap] Failed to record swap reward:", err))
+    }
+
     return receipt.hash
   } catch (error: any) {
     // Provide more specific error messages

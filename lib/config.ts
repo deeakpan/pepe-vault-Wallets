@@ -20,10 +20,10 @@ export const SWAP_FEE_PERCENTAGE = 0.8 // 0.8% of the token being received (outp
 export const MIN_UCHAIN_REQUIRED = 1000000 // 1 million VAULT tokens
 
 // Cashback per transaction (in USD worth of VAULT)
-export const TRANSFER_REWARD_USD = 0.005 // $0.005 worth of VAULT per transfer
+export const TRANSFER_REWARD_USD = 0.0025 // $0.0025 worth of VAULT per transfer
 
 // Cashback per swap (percentage of swap value)
-export const SWAP_REWARD_PERCENTAGE = 0.085 // 0.085% of swap value in VAULT
+export const SWAP_REWARD_PERCENTAGE = 0.0425 // 0.0425% of swap value in VAULT
 
 // ============================================
 // TOKEN ADDRESSES
