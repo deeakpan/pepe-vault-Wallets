@@ -356,6 +356,36 @@ export default function SendPage() {
 
       <div className="w-full px-4 sm:px-6 pt-6 space-y-4">
 
+        {/* ── Bulk action shortcuts ── */}
+        {currentStep === "select" && (
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/transfer-all"
+              className="flex items-center gap-2.5 px-4 py-3 rounded-2xl transition-all"
+              style={{ background: "#111", border: "1px solid rgba(0,255,136,0.15)" }}>
+              <div className="flex items-center justify-center w-8 h-8 rounded-xl flex-shrink-0"
+                style={{ background: "rgba(0,255,136,0.12)" }}>
+                <Send style={{ width: 15, height: 15, color: "#00ff88" }} />
+              </div>
+              <div>
+                <div className="text-xs font-bold" style={{ color: "#fff" }}>Transfer All</div>
+                <div className="text-xs" style={{ color: "#555" }}>Move all assets</div>
+              </div>
+            </Link>
+            <Link href="/batch-transfer"
+              className="flex items-center gap-2.5 px-4 py-3 rounded-2xl transition-all"
+              style={{ background: "#111", border: "1px solid rgba(255,255,255,0.07)" }}>
+              <div className="flex items-center justify-center w-8 h-8 rounded-xl flex-shrink-0"
+                style={{ background: "rgba(255,255,255,0.06)" }}>
+                <Wallet style={{ width: 15, height: 15, color: "#aaa" }} />
+              </div>
+              <div>
+                <div className="text-xs font-bold" style={{ color: "#fff" }}>Batch Send</div>
+                <div className="text-xs" style={{ color: "#555" }}>Multiple recipients</div>
+              </div>
+            </Link>
+          </div>
+        )}
+
         {/* ── STEP 1: Token & chain ── */}
         {currentStep === "select" && (
           <>
