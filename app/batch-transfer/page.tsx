@@ -10,6 +10,7 @@ import { ethers } from "ethers"
 import { getCurrentWallet, getSessionPassword, type Wallet } from "@/lib/wallet"
 import { sendNativeToken, sendToken } from "@/lib/transactions"
 import { scanWalletTokens, type ScannedToken, NATIVE_ADDR } from "@/lib/scanTokens"
+import { saveTxToHistory, explorerUrl as txExplorerUrl } from "@/lib/txHistory"
 import BottomNav from "@/components/BottomNav"
 
 /* ── avatar ──────────────────────────────────────────────── */
@@ -61,7 +62,7 @@ const mkRow = (): BatchRow => ({
   showPicker: false,
 })
 
-const GAS_RESERVE = 0.01
+const GAS_RESERVE = 20 // always keep 20 PEPU for gas — never touch this
 
 /* ── component ───────────────────────────────────────────── */
 export default function BatchTransferPage() {
@@ -72,7 +73,7 @@ export default function BatchTransferPage() {
   const [rows, setRows] = useState<BatchRow[]>([mkRow()])
 
   const [password, setPassword] = useState("")
-  const [showPw, setShowPw] = useState(false)
+  const [walletLocked, setWalletLocked] = useState(false)
 
   const [executing, setExecuting] = useState(false)
   const [progress, setProgress] = useState<TxResult[]>([])
@@ -87,6 +88,7 @@ export default function BatchTransferPage() {
     setChainId(id)
     const w = getCurrentWallet()
     setWallet(w ?? null)
+    setWalletLocked(!getSessionPassword())
     if (w) load(w.address, id)
   }, [])
 
@@ -120,13 +122,16 @@ export default function BatchTransferPage() {
     Number(r.amount) > 0 &&
     ethers.isAddress(r.recipient)
 
-  const canSend = rows.some(rowValid) && !!wallet
+  const canSend =
+    rows.some(rowValid) &&
+    !!wallet &&
+    (!walletLocked || password.length > 0) // require pw if session expired
 
   /* ── execute ─────────────────────────────────────────────── */
   const run = async () => {
     if (!wallet || !canSend) return
     const pw = getSessionPassword() || password
-    if (!pw) { setShowPw(true); return }
+    if (!pw) return // blocked by canSend guard above
 
     const valid = rows.filter(rowValid)
     const live: TxResult[] = valid.map((r) => ({
@@ -152,6 +157,7 @@ export default function BatchTransferPage() {
           hash = await sendToken(wallet, pw, t.address, r.recipient, r.amount, chainId)
         }
         live[i] = { ...live[i], status: "success", hash }
+        saveTxToHistory({ hash, type: "send", chainId, timestamp: Date.now(), explorerUrl: txExplorerUrl(hash, chainId), to: r.recipient, amount: r.amount, token: t.symbol })
       } catch (e: any) {
         live[i] = { ...live[i], status: "failed", error: String(e.message).slice(0, 90) }
       }
@@ -207,19 +213,36 @@ export default function BatchTransferPage() {
           </div>
         )}
 
-        {/* Password field (shown on demand) */}
-        {showPw && (
-          <div>
-            <div className="text-xs font-semibold mb-2" style={{ color: "#555" }}>
-              WALLET PASSWORD
+        {/* Password — always shown when session is expired */}
+        {walletLocked ? (
+          <div className="rounded-2xl px-4 py-4 space-y-3"
+            style={{ background: "#111", border: "1px solid rgba(0,255,136,0.2)" }}>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ background: "#00ff88" }} />
+              <div className="text-xs font-bold" style={{ color: "#00ff88" }}>
+                PASSWORD REQUIRED TO APPROVE
+              </div>
             </div>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password to confirm"
+              placeholder="Enter wallet password to confirm transfers"
               className="input-field w-full"
+              autoComplete="current-password"
             />
+            <div className="text-xs" style={{ color: "#555" }}>
+              You must enter your password to authorize sending assets.
+              20 PEPU is always reserved for gas fees.
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl px-4 py-3 flex items-center gap-3"
+            style={{ background: "rgba(0,255,136,0.05)", border: "1px solid rgba(0,255,136,0.12)" }}>
+            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#00ff88" }} />
+            <div className="text-xs" style={{ color: "#aaa" }}>
+              Wallet unlocked · 20 PEPU always reserved for gas fees
+            </div>
           </div>
         )}
 

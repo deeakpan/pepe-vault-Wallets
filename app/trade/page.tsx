@@ -965,6 +965,21 @@ export default function TradePage() {
         explorerUrl: `https://pepuscan.com/tx/${txHash}`,
       })
 
+      // Save to transaction history
+      import("@/lib/txHistory").then(({ saveTxToHistory }) => {
+        saveTxToHistory({
+          hash: txHash,
+          type: "swap",
+          chainId,
+          timestamp: Date.now(),
+          explorerUrl: `https://pepuscan.com/tx/${txHash}`,
+          fromToken: fromToken.symbol,
+          toToken: toToken.symbol,
+          amountIn,
+          amountOut,
+        })
+      }).catch(() => {})
+
       setAmountIn("")
       setAmountOut("")
       setSwapFee("0")
@@ -1329,6 +1344,21 @@ export default function TradePage() {
       </div>
 
       <div className="w-full px-4 sm:px-6 pt-5 space-y-3">
+
+        {/* ── Swap All shortcut ── */}
+        <a href="/swap-all"
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+          style={{ background: "#111", border: "1px solid rgba(0,255,136,0.15)", textDecoration: "none" }}>
+          <div className="flex items-center justify-center w-8 h-8 rounded-xl flex-shrink-0"
+            style={{ background: "rgba(0,255,136,0.12)" }}>
+            <ArrowDownUp className="w-4 h-4" style={{ color: "#00ff88" }} />
+          </div>
+          <div className="flex-1">
+            <div className="text-xs font-bold" style={{ color: "#fff" }}>Swap All Tokens → PEPU</div>
+            <div className="text-xs" style={{ color: "#555" }}>Swap all your holdings to PEPU in one go</div>
+          </div>
+          <div className="text-xs font-bold" style={{ color: "#00ff88" }}>→</div>
+        </a>
 
         {/* ── Slippage panel ── */}
         {showSlippageSettings && (

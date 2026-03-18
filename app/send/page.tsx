@@ -293,9 +293,8 @@ export default function SendPage() {
       if (selectedToken.isNative) txHash = await sendNativeToken(active, password, finalRecipient, amount, chainId)
       else txHash = await sendToken(active, password, selectedToken.address, finalRecipient, amount, chainId)
       const explorerUrl = chainId === 1 ? `https://etherscan.io/tx/${txHash}` : `https://pepuscan.com/tx/${txHash}`
-      const txHistory = JSON.parse(localStorage.getItem("transaction_history") || "[]")
-      txHistory.unshift({ hash: txHash, type: "send", to: recipient, amount, token: selectedToken.symbol, chainId, timestamp: Date.now(), explorerUrl })
-      localStorage.setItem("transaction_history", JSON.stringify(txHistory.slice(0, 100)))
+      const { saveTxToHistory } = await import("@/lib/txHistory")
+      saveTxToHistory({ hash: txHash, type: "send", chainId, timestamp: Date.now(), explorerUrl, to: finalRecipient, amount, token: selectedToken.symbol })
       setNotificationData({ message: "Transaction sent successfully!", txHash, explorerUrl })
       setShowNotification(true)
       setRecipient(""); setAmount(""); setPassword(""); setCurrentStep("select")
