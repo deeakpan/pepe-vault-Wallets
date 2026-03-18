@@ -89,9 +89,9 @@ export default function SwapAllPage() {
     for (let i = 0; i < toProcess.length; i++) {
       const t = toProcess[i]
       try {
-        // Approve ERC20 first
+        // Approve ERC20 first — signature: (tokenAddress, wallet, password, amount, decimals, chainId)
         try {
-          await approveToken(t.address, t.balance, t.decimals, wallet, pw, chainId)
+          await approveToken(t.address, wallet, pw, t.balance, t.decimals, chainId)
         } catch (approveErr: any) {
           if (!String(approveErr.message).includes("already_approved")) throw approveErr
         }
